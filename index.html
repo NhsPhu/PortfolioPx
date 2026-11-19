@@ -1,0 +1,2389 @@
+<!DOCTYPE html><html lang="vi"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Nguyễn Hồ Sỹ Phú | Fullstack Developer Portfolio (8-Bit RPG)</title>
+<meta content="Portfolio phong cách Pixel Art 8-bit của Nguyễn Hồ Sỹ Phú - Fullstack Developer (Fresher / Intern). Tập trung Backend API, Microservices, Event-Driven, DevOps." name="description">
+<meta content="Nguyễn Hồ Sỹ Phú | 8-Bit Pixel RPG Portfolio" property="og:title">
+<meta content="Fullstack Developer (Fresher / Intern) - Java Spring Boot, Next.js, Microservices." property="og:description">
+<meta content="website" property="og:type">
+<!-- Google Fonts: VT323 (Hỗ trợ tiếng Việt) & Press Start 2P (Labels tiếng Anh ngắn) -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&amp;family=VT323&amp;display=swap" rel="stylesheet">
+<style>
+    /* =========================================
+       8-BIT RETRO PALETTE & DESIGN TOKENS
+       ========================================= */
+    :root {
+      --bg-dark: #0f1226;          /* Nền chàm tối */
+      --bg-panel: #1a1e3a;         /* Khung panel */
+      --bg-slot: #12152b;          /* Ô inventory */
+      --ink: #070814;              /* Mực tối */
+      --cream: #f4edd4;            /* Kem sáng cho text chính */
+      --cream-dim: #c5beaa;        /* Kem mờ */
+      --blue-accent: #2e59a7;      /* Xanh dương */
+      --blue-light: #4d86e9;       /* Xanh dương sáng */
+      --gold: #f7b731;             /* Vàng gold (Boss quest / Level) */
+      --gold-light: #ffe57f;
+      --pink: #eb3b5a;             /* Hồng đỏ cổ điển (HP / Heart) */
+      --mint: #20bf6b;             /* Xanh mint (EXP / Success / Badge) */
+      
+      /* Pixel Borders & Shadows */
+      --pixel-border: 4px solid var(--cream);
+      --pixel-box-shadow: 
+        4px 4px 0px 0px var(--ink),
+        -4px -4px 0px 0px #2a315e;
+      --pixel-shadow-gold: 
+        4px 4px 0px 0px var(--ink),
+        0 0 0 4px var(--gold);
+      --pixel-shadow-hard: 6px 6px 0px 0px var(--ink);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      image-rendering: pixelated;
+      image-rendering: -moz-crisp-edges;
+      image-rendering: crisp-edges;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* CUSTOM 8-BIT RETRO PIXEL CURSOR */
+    body {
+      background-color: var(--bg-dark);
+      color: var(--cream);
+      font-family: 'VT323', monospace;
+      font-size: 22px;
+      line-height: 1.35;
+      overflow-x: hidden;
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(rgba(46, 89, 167, 0.15) 15%, transparent 16%),
+        radial-gradient(rgba(247, 183, 49, 0.1) 15%, transparent 16%);
+      background-size: 16px 16px;
+      background-position: 0 0, 8px 8px;
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23070814' d='M2 2h4v2h2v2h2v2h2v2h2v2h-4v2h-2v2H6v2H4v-4H2V2z'/%3E%3Cpath fill='%23f7b731' d='M4 4h2v2h2v2h2v2h2v2H8v2H6v2H4V4z'/%3E%3Cpath fill='%23ffffff' d='M4 4h2v2H4V4z'/%3E%3Cpath fill='%23eb3b5a' d='M10 12h2v2h-2z'/%3E%3C/svg%3E"), auto;
+    }
+
+    a, button, .pixel-btn, .inventory-slot, .boss-card, .quest-card, .pixel-btn-sound {
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23070814' d='M6 0h4v6h6v4h2v8h-2v4H6v-4H4v-8h2V0z'/%3E%3Cpath fill='%2320bf6b' d='M8 2h2v4h4v4h2v6h-2v4H8v-4H6v-6h2V2z'/%3E%3Cpath fill='%23ffffff' d='M8 4h2v4H8V4z'/%3E%3C/svg%3E"), pointer;
+    }
+
+    /* FONT UTILITIES */
+    .pixel-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      line-height: 1.5;
+    }
+
+    .pixel-heading {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* SCANLINE & CRT VINTAGE OVERLAYS */
+    .scanlines {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 999;
+      background: linear-gradient(
+        rgba(18, 16, 16, 0) 50%, 
+        rgba(0, 0, 0, 0.32) 50%
+      );
+      background-size: 100% 4px;
+      opacity: 0.65;
+      transition: opacity 0.2s steps(2);
+    }
+
+    body.crt-active .scanlines {
+      opacity: 0.85;
+      animation: crt-flicker 0.15s steps(2) infinite;
+    }
+
+    body.crt-active::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 998;
+      box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.7);
+    }
+
+    body.crt-disabled .scanlines {
+      display: none;
+    }
+
+    body.crt-disabled::after {
+      display: none;
+    }
+
+    @keyframes crt-flicker {
+      0% { opacity: 0.75; }
+      50% { opacity: 0.88; }
+      100% { opacity: 0.75; }
+    }
+
+    /* FX TOGGLE OFF STATE */
+    body.fx-disabled .pixel-star,
+    body.fx-disabled .pixel-meteor,
+    body.fx-disabled .pixel-dust,
+    body.fx-disabled .pixel-particle,
+    body.fx-disabled .exp-floater,
+    body.fx-disabled .boss-badge,
+    body.fx-disabled .quest-badge-tag,
+    body.fx-disabled .status-bar-pulse::after,
+    body.fx-disabled .pixel-progress-fill::after,
+    body.fx-disabled .hero-emote,
+    body.fx-disabled #pixelHeroCanvas,
+    body.fx-disabled .boss-card {
+      animation: none !important;
+    }
+    body.fx-disabled .pixel-meteor,
+    body.fx-disabled .pixel-dust {
+      display: none !important;
+    }
+
+    /* PIXEL CLICK PARTICLES CONTAINER */
+    .pixel-particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      width: 6px;
+      height: 6px;
+      box-shadow: 2px 2px 0 0 #070814;
+      animation: particle-blast 0.6s steps(6) forwards;
+    }
+
+    @keyframes particle-blast {
+      0% {
+        transform: translate(0, 0) scale(1.2);
+        opacity: 1;
+      }
+      50% { opacity: 1; }
+      100% {
+        transform: translate(var(--dx), var(--dy)) scale(0.6);
+        opacity: 0;
+      }
+    }
+
+    /* =========================================
+       PIXEL UI COMPONENTS & BUTTONS
+       ========================================= */
+    .pixel-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background-color: var(--blue-accent);
+      color: var(--cream);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px;
+      padding: 12px 18px;
+      border: 3px solid var(--cream);
+      box-shadow: 4px 4px 0px 0px var(--ink);
+      cursor: pointer;
+      position: relative;
+      transition: none;
+      text-decoration: none;
+      outline: none;
+      user-select: none;
+    }
+
+    .pixel-btn:hover, .pixel-btn:focus-visible {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px 0px var(--ink);
+      background-color: var(--blue-light);
+    }
+
+    .pixel-btn:active {
+      transform: translate(4px, 4px) !important;
+      box-shadow: 0px 0px 0px 0px var(--ink) !important;
+    }
+
+    .pixel-btn-gold {
+      background-color: #c98818;
+      border-color: var(--gold);
+      color: var(--ink);
+      font-weight: bold;
+    }
+    .pixel-btn-gold:hover, .pixel-btn-gold:focus-visible {
+      background-color: var(--gold);
+    }
+
+    .pixel-btn-pink {
+      background-color: #a32238;
+      border-color: var(--pink);
+    }
+    .pixel-btn-pink:hover, .pixel-btn-pink:focus-visible {
+      background-color: var(--pink);
+    }
+
+    .pixel-btn-mint {
+      background-color: #148046;
+      border-color: var(--mint);
+    }
+    .pixel-btn-mint:hover, .pixel-btn-mint:focus-visible {
+      background-color: var(--mint);
+    }
+
+    /* Audio & FX Control Buttons in Nav */
+    .audio-control-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pixel-btn-sound {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      padding: 6px 9px;
+      background-color: #1a1e3a;
+      border: 2px solid var(--gold);
+      color: var(--gold);
+      box-shadow: 2px 2px 0px 0px var(--ink);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: none;
+      outline: none;
+      user-select: none;
+    }
+
+    .pixel-btn-sound:hover {
+      background-color: var(--blue-accent);
+      color: var(--cream);
+      border-color: var(--cream);
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0px 0px var(--ink);
+    }
+
+    .pixel-btn-sound:active {
+      transform: translate(2px, 2px);
+      box-shadow: 0px 0px 0px 0px var(--ink);
+    }
+
+    .pixel-btn-sound.is-playing {
+      background-color: #148046;
+      border-color: var(--mint);
+      color: var(--cream);
+      animation: sound-glow 1.5s steps(2) infinite;
+    }
+
+    .pixel-btn-sound.crt-on,
+    .pixel-btn-sound.fx-on {
+      background-color: #2e59a7;
+      border-color: #4d86e9;
+      color: var(--cream);
+    }
+
+    @keyframes sound-glow {
+      0%, 100% { border-color: var(--mint); }
+      50% { border-color: var(--gold); }
+    }
+
+    .pixel-box {
+      background-color: var(--bg-panel);
+      border: 4px solid var(--cream);
+      box-shadow: var(--pixel-shadow-hard);
+      position: relative;
+      padding: 24px;
+    }
+
+    .pixel-tag {
+      display: inline-block;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      padding: 4px 8px;
+      border: 2px solid var(--cream-dim);
+      background: var(--ink);
+      color: var(--cream);
+      box-shadow: 2px 2px 0px 0px var(--ink);
+      margin: 3px;
+    }
+
+    .pixel-tag-gold {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* =========================================
+       FIXED TOP NAVIGATION
+       ========================================= */
+    header.fixed-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 100;
+      background-color: var(--bg-dark);
+      border-bottom: 4px solid var(--cream);
+      box-shadow: 0 4px 0 0 var(--ink);
+      padding: 8px 16px;
+    }
+
+    .nav-container {
+      max-width: 1180px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--gold);
+    }
+
+    .nav-logo-heart {
+      color: var(--pink);
+      display: inline-block;
+      animation: heart-beat 1.5s steps(2) infinite;
+    }
+
+    @keyframes heart-beat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+
+    nav.nav-menu {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .nav-link {
+      font-family: 'VT323', monospace;
+      font-size: 24px;
+      padding: 4px 10px;
+      border: 2px solid transparent;
+      color: var(--cream);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-link:hover, .nav-link:focus-visible {
+      background-color: var(--blue-accent);
+      border-color: var(--cream);
+      box-shadow: 2px 2px 0 0 var(--ink);
+    }
+
+    /* Sound Toast Notification */
+    .sound-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg-panel);
+      border: 3px solid var(--gold);
+      box-shadow: 4px 4px 0 0 var(--ink);
+      padding: 10px 16px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      color: var(--gold);
+      z-index: 998;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      opacity: 0.95;
+      transition: opacity 0.3s;
+    }
+
+    .sound-toast:hover {
+      background: #252b54;
+      opacity: 1;
+    }
+
+    /* =========================================
+       HERO SECTION (RETRO RPG STAGE)
+       ========================================= */
+    section.hero-section {
+      min-height: 100vh;
+      padding-top: 90px;
+      padding-bottom: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      background: 
+        linear-gradient(180deg, 
+          #0b0d1e 0%, 
+          #121833 40%, 
+          #1b2752 70%, 
+          #2c3e6b 100%
+        );
+      border-bottom: 8px solid var(--ink);
+      overflow: hidden;
+    }
+
+    /* Horizon Glow Strip Behind Hills */
+    .horizon-glow {
+      position: absolute;
+      bottom: 48px;
+      left: 0;
+      width: 100%;
+      height: 40px;
+      background: linear-gradient(180deg, transparent 0%, rgba(77, 134, 233, 0.18) 70%, rgba(247, 183, 49, 0.15) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Pixel Hills at Bottom */
+    .pixel-hills {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 48px;
+      background-color: #172442;
+      clip-path: polygon(
+        0% 100%, 0% 60%, 10% 60%, 10% 40%, 20% 40%, 20% 20%, 30% 20%, 30% 40%,
+        40% 40%, 40% 70%, 50% 70%, 50% 30%, 65% 30%, 65% 50%, 75% 50%, 75% 15%,
+        85% 15%, 85% 45%, 95% 45%, 95% 70%, 100% 70%, 100% 100%
+      );
+      z-index: 1;
+    }
+
+    .pixel-hills-front {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 24px;
+      background-color: #0d1527;
+      clip-path: polygon(
+        0% 100%, 0% 50%, 5% 50%, 5% 20%, 15% 20%, 15% 60%, 25% 60%, 25% 30%,
+        35% 30%, 35% 10%, 45% 10%, 45% 40%, 60% 40%, 60% 20%, 70% 20%, 70% 50%,
+        80% 50%, 80% 15%, 90% 15%, 90% 50%, 100% 50%, 100% 100%
+      );
+      z-index: 2;
+    }
+
+    /* Multi-layered Twinkling Stars */
+    .star-field {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .pixel-star {
+      position: absolute;
+      background-color: #ffffff;
+      box-shadow: 0 0 0 1px var(--ink);
+    }
+
+    .pixel-star.star-fast {
+      width: 3px;
+      height: 3px;
+      animation: star-twinkle-fast 1.2s steps(2) infinite;
+    }
+    .pixel-star.star-mid {
+      width: 4px;
+      height: 4px;
+      animation: star-twinkle-mid 2.2s steps(2) infinite;
+    }
+    .pixel-star.star-slow {
+      width: 5px;
+      height: 5px;
+      background-color: #ffeaa7;
+      animation: star-twinkle-slow 3.4s steps(2) infinite;
+    }
+
+    @keyframes star-twinkle-fast {
+      0%, 100% { opacity: 0.15; transform: scale(0.8); }
+      50% { opacity: 0.95; transform: scale(1.3); }
+    }
+    @keyframes star-twinkle-mid {
+      0%, 100% { opacity: 0.25; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.4); }
+    }
+    @keyframes star-twinkle-slow {
+      0%, 100% { opacity: 0.3; transform: scale(0.9); }
+      50% { opacity: 0.85; transform: scale(1.2); }
+    }
+
+    /* Ambient Floating Pixel Dust / Fireflies */
+    .ambient-dust-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .pixel-dust {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background-color: rgba(247, 183, 49, 0.7);
+      box-shadow: 1px 1px 0 0 #070814;
+      animation: dust-float var(--float-duration, 8s) steps(12) infinite;
+    }
+
+    @keyframes dust-float {
+      0% {
+        transform: translate(0, 0);
+        opacity: 0;
+      }
+      20% {
+        opacity: 0.85;
+      }
+      80% {
+        opacity: 0.65;
+      }
+      100% {
+        transform: translate(var(--move-x, 40px), var(--move-y, -120px));
+        opacity: 0;
+      }
+    }
+
+    /* Shooting Star Container */
+    .shooting-star-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .pixel-meteor {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background-color: #ffffff;
+      box-shadow: 
+        -6px -6px 0 0 var(--gold),
+        -12px -12px 0 0 #eb3b5a,
+        -18px -18px 0 0 #4d86e9,
+        0 0 0 2px var(--ink);
+      opacity: 0;
+      transform: translate3d(0, 0, 0);
+    }
+
+    .pixel-meteor.active {
+      animation: meteor-fly 1.2s steps(12) forwards;
+    }
+
+    @keyframes meteor-fly {
+      0% {
+        opacity: 0;
+        transform: translate(0, 0);
+      }
+      10% { opacity: 1; }
+      85% { opacity: 1; }
+      100% {
+        opacity: 0;
+        transform: translate(320px, 320px);
+      }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 36px;
+      align-items: center;
+    }
+
+    /* Pixel Avatar Box & Stepped Bobbing 2-frame Idle */
+    .avatar-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    /* 1. EMOTE BUBBLE OVER CHARACTER HEAD */
+    .hero-emote-bubble {
+      position: absolute;
+      top: -24px;
+      background: var(--cream);
+      color: var(--ink);
+      border: 3px solid var(--ink);
+      box-shadow: 3px 3px 0 0 var(--ink);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px;
+      padding: 3px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 15;
+      animation: emote-bounce 1.6s steps(2) infinite;
+      user-select: none;
+    }
+
+    .hero-emote-bubble::after {
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid var(--ink);
+    }
+
+    @keyframes emote-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .avatar-frame {
+      width: 200px;
+      height: 200px;
+      background: #141b38;
+      border: 4px solid var(--cream);
+      box-shadow: var(--pixel-shadow-hard);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    /* 2-Frame Stepped Bobbing / Breathing Idle Animation */
+    #pixelHeroCanvas {
+      width: 160px;
+      height: 160px;
+      animation: hero-idle-step 0.9s steps(2) infinite;
+      transform-origin: bottom center;
+    }
+
+    @keyframes hero-idle-step {
+      0% {
+        transform: translateY(0) scale(1, 1);
+      }
+      50% {
+        transform: translateY(-5px) scale(1.02, 0.98);
+      }
+      100% {
+        transform: translateY(0) scale(1, 1);
+      }
+    }
+
+    /* Character HP / MP mini bars under avatar */
+    .hero-vitals-container {
+      width: 100%;
+      max-width: 200px;
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .hero-vital-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 15px;
+      font-family: 'Press Start 2P', monospace;
+    }
+
+    .hero-vital-label {
+      width: 28px;
+      font-size: 8px;
+      color: var(--cream);
+    }
+
+    .status-bar-outer {
+      flex: 1;
+      height: 10px;
+      background: var(--ink);
+      border: 2px solid var(--cream);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .status-bar-fill {
+      height: 100%;
+      position: relative;
+    }
+
+    .status-bar-hp {
+      width: 100%;
+      background: var(--pink);
+    }
+
+    .status-bar-mp {
+      width: 100%;
+      background: var(--blue-light);
+    }
+
+    /* Periodic pixel scan pulse across HP/MP bars */
+    .status-bar-pulse::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -40%;
+      width: 30%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.6);
+      animation: bar-pulse-scan 3.2s steps(8) infinite;
+    }
+
+    @keyframes bar-pulse-scan {
+      0% { left: -40%; }
+      30%, 100% { left: 120%; }
+    }
+
+    /* Typewriter Dialog Box */
+    .dialog-box {
+      background: var(--bg-panel);
+      border: 4px solid var(--cream);
+      box-shadow: var(--pixel-shadow-hard);
+      padding: 24px;
+      position: relative;
+    }
+
+    .dialog-box::before {
+      content: "NPC: NGUYỄN HỒ SỸ PHÚ [LV.20]";
+      position: absolute;
+      top: -14px;
+      left: 20px;
+      background: var(--gold);
+      color: var(--ink);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      padding: 3px 8px;
+      border: 2px solid var(--ink);
+    }
+
+    .dialog-text-area {
+      min-height: 120px;
+      margin-top: 10px;
+      font-size: 26px;
+      line-height: 1.4;
+      color: var(--cream);
+    }
+
+    /* DOS / RPG Terminal Style Solid Block Cursor */
+    .typewriter-cursor {
+      display: inline-block;
+      width: 12px;
+      height: 20px;
+      background-color: var(--gold);
+      vertical-align: middle;
+      animation: blink-dos 0.7s steps(2) infinite;
+      margin-left: 5px;
+      box-shadow: 1px 1px 0 0 var(--ink);
+    }
+
+    @keyframes blink-dos {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .hero-actions {
+      margin-top: 24px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* =========================================
+       SECTION CONTAINERS & HEADERS
+       ========================================= */
+    .main-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 60px 20px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+      border-bottom: 4px dashed #2e3b6e;
+      padding-bottom: 12px;
+    }
+
+    .section-title h2 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 18px;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .section-title .badge-num {
+      background: var(--pink);
+      color: var(--cream);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      padding: 4px 6px;
+      border: 2px solid var(--cream);
+    }
+
+    /* =========================================
+       CHARACTER STATS (BẢNG CHỈ SỐ NHÂN VẬT)
+       ========================================= */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 2px dotted #364177;
+      padding: 8px 0;
+      font-size: 24px;
+    }
+
+    .stat-label {
+      color: var(--cream-dim);
+    }
+
+    .stat-value {
+      color: var(--gold);
+      font-weight: bold;
+    }
+
+    .stat-bar-container {
+      margin-top: 14px;
+      position: relative;
+    }
+
+    .stat-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      margin-bottom: 6px;
+      color: var(--mint);
+    }
+
+    /* EXP BAR SHIMMER & LEVEL UP FLOATER */
+    .pixel-progress-bar {
+      height: 22px;
+      background: var(--ink);
+      border: 3px solid var(--cream);
+      box-shadow: 2px 2px 0 0 var(--ink);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pixel-progress-fill {
+      height: 100%;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--mint) 0px,
+        var(--mint) 12px,
+        #179854 12px,
+        #179854 16px
+      );
+      width: 73.4%; /* GPA 7.34/10 */
+      position: relative;
+    }
+
+    /* Retro Shine Sweep */
+    .pixel-progress-fill::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -30%;
+      width: 25%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.45);
+      box-shadow: 0 0 8px #ffffff;
+      animation: exp-sweep 2.8s steps(10) infinite;
+    }
+
+    @keyframes exp-sweep {
+      0% { left: -30%; }
+      40%, 100% { left: 110%; }
+    }
+
+    /* Floating "+EXP GAINED" badge */
+    .exp-floater {
+      position: absolute;
+      right: 0;
+      top: -24px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: var(--gold);
+      background: #111428;
+      border: 1px solid var(--gold);
+      padding: 2px 5px;
+      animation: exp-bounce 1.6s steps(2) infinite;
+    }
+
+    @keyframes exp-bounce {
+      0%, 100% { transform: translateY(0); color: var(--gold); }
+      50% { transform: translateY(-4px); color: #ffffff; }
+    }
+
+    .quest-log-box {
+      background: #111428;
+      border: 3px solid #2d386d;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .quest-log-box h4 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+
+    /* =========================================
+       INVENTORY (TÚI ĐỒ CÔNG NGHỆ)
+       ========================================= */
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .inventory-slot {
+      background: var(--bg-slot);
+      border: 4px solid #323d75;
+      box-shadow: 4px 4px 0 0 var(--ink);
+      padding: 18px;
+      position: relative;
+      transition: none;
+      user-select: none;
+    }
+
+    /* Interactive hover cursor indicator for inventory slot */
+    .inventory-slot::before {
+      content: "▶";
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      color: var(--gold);
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: none;
+    }
+
+    .inventory-slot:hover {
+      border-color: var(--gold);
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0 0 var(--ink);
+      background-color: #171b36;
+    }
+
+    .inventory-slot:hover::before {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .inventory-slot:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 0 var(--ink);
+    }
+
+    .slot-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      border-bottom: 2px solid #252e5a;
+      padding-bottom: 6px;
+    }
+
+    .slot-icon {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--ink);
+      border: 2px solid var(--gold);
+      font-size: 16px;
+    }
+
+    .slot-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      color: var(--gold);
+      line-height: 1.4;
+    }
+
+    .slot-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    /* =========================================
+       QUESTS / PROJECTS (NHIỆM VỤ DỰ ÁN)
+       ========================================= */
+    /* BOSS CARD: Omni Marketplace with Metallic Gold Shimmer & Border Glow */
+    .boss-card {
+      background: #171d3d;
+      border: 6px solid var(--gold);
+      box-shadow: 8px 8px 0px 0px var(--ink);
+      padding: 28px;
+      margin-bottom: 36px;
+      position: relative;
+      animation: boss-card-glow 3s steps(4) infinite;
+      transition: none;
+    }
+
+    /* Golden Metallic Shimmer Sweep Across Boss Card */
+    .boss-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent 0%, var(--gold-light) 50%, transparent 100%);
+      opacity: 0.8;
+      animation: boss-top-shimmer 2.5s steps(8) infinite;
+    }
+
+    @keyframes boss-top-shimmer {
+      0% { transform: translateX(-100%); }
+      50%, 100% { transform: translateX(100%); }
+    }
+
+    @keyframes boss-card-glow {
+      0%, 100% {
+        border-color: var(--gold);
+        box-shadow: 8px 8px 0px 0px var(--ink), 0 0 0 2px #d49a1d;
+      }
+      50% {
+        border-color: #ffe066;
+        box-shadow: 8px 8px 0px 0px var(--ink), 0 0 16px 2px rgba(247, 183, 49, 0.6);
+      }
+    }
+
+    .boss-card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 10px 10px 0px 0px var(--ink), 0 0 20px 4px rgba(247, 183, 49, 0.7);
+    }
+
+    /* Warning blinking boss badge */
+    .boss-badge {
+      position: absolute;
+      top: -16px;
+      right: 24px;
+      background: var(--pink);
+      color: var(--cream);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 11px;
+      padding: 6px 12px;
+      border: 3px solid var(--ink);
+      box-shadow: 3px 3px 0 0 var(--ink);
+      animation: boss-pulse-blink 1s steps(2) infinite;
+      letter-spacing: 0.5px;
+    }
+
+    @keyframes boss-pulse-blink {
+      0%, 100% { 
+        transform: scale(1); 
+        background-color: var(--pink);
+        color: #ffffff;
+      }
+      50% { 
+        transform: scale(1.06); 
+        background-color: #ff1e42;
+        color: var(--gold);
+        border-color: #ffffff;
+      }
+    }
+
+    .boss-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 20px;
+      color: var(--gold);
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .boss-subtitle {
+      font-size: 24px;
+      color: var(--cream-dim);
+      margin-bottom: 18px;
+    }
+
+    .quest-specs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      background: #0f1226;
+      border: 2px solid #2b3668;
+      padding: 16px;
+      margin: 16px 0;
+    }
+
+    .spec-item {
+      font-size: 20px;
+      line-height: 1.3;
+    }
+
+    .spec-key {
+      color: var(--mint);
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    /* SIDE QUESTS GRID */
+    .side-quests-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 24px;
+    }
+
+    .quest-card {
+      background: var(--bg-panel);
+      border: 4px solid var(--cream);
+      box-shadow: var(--pixel-shadow-hard);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      transition: none;
+    }
+
+    /* Interactive hover highlight & cursor indicator on Quest Cards */
+    .quest-card::after {
+      content: "▶ QUEST";
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: var(--mint);
+      opacity: 0;
+      transform: translateX(-4px);
+    }
+
+    .quest-card:hover {
+      border-color: var(--mint);
+      transform: translate(-3px, -3px);
+      box-shadow: 9px 9px 0 0 var(--ink);
+      background-color: #1f2444;
+    }
+
+    .quest-card:hover::after {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .quest-card:active {
+      transform: translate(2px, 2px);
+      box-shadow: 4px 4px 0 0 var(--ink);
+    }
+
+    /* Subtle pulsing quest badge */
+    .quest-badge-tag {
+      display: inline-block;
+      animation: quest-badge-glow 2s steps(2) infinite;
+    }
+
+    @keyframes quest-badge-glow {
+      0%, 100% { opacity: 0.9; }
+      50% { opacity: 1; color: var(--gold); }
+    }
+
+    .quest-card-header {
+      margin-bottom: 14px;
+    }
+
+    .quest-card-title {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 13px;
+      color: var(--cream);
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .quest-card-desc {
+      font-size: 20px;
+      color: var(--cream-dim);
+      margin-bottom: 14px;
+    }
+
+    .quest-detail-list {
+      list-style: none;
+      margin-bottom: 16px;
+    }
+
+    .quest-detail-list li {
+      font-size: 20px;
+      margin-bottom: 6px;
+      padding-left: 18px;
+      position: relative;
+    }
+
+    .quest-detail-list li::before {
+      content: "►";
+      position: absolute;
+      left: 0;
+      color: var(--gold);
+      font-size: 12px;
+      top: 3px;
+    }
+
+    /* =========================================
+       CONTACT (LIÊN HỆ)
+       ========================================= */
+    .contact-card {
+      background: var(--bg-panel);
+      border: 4px solid var(--cream);
+      box-shadow: var(--pixel-shadow-hard);
+      padding: 32px;
+      text-align: center;
+    }
+
+    .contact-intro {
+      font-size: 26px;
+      max-width: 700px;
+      margin: 0 auto 28px auto;
+    }
+
+    .contact-buttons-grid {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .contact-address {
+      font-size: 22px;
+      color: var(--cream-dim);
+      border-top: 2px dashed #2e3b6e;
+      padding-top: 16px;
+      display: inline-block;
+    }
+
+    /* =========================================
+       FOOTER
+       ========================================= */
+    footer.pixel-footer {
+      border-top: 4px solid var(--cream);
+      background: #090b16;
+      padding: 36px 20px;
+      text-align: center;
+      box-shadow: 0 -4px 0 0 var(--ink);
+    }
+
+    .footer-quote {
+      font-size: 24px;
+      color: var(--gold);
+      font-style: italic;
+      max-width: 800px;
+      margin: 0 auto 16px auto;
+      line-height: 1.4;
+    }
+
+    .footer-copyright {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      color: var(--cream-dim);
+    }
+
+    /* =========================================
+       ACCESSIBILITY & RESPONSIVE
+       ========================================= */
+    :focus-visible {
+      outline: 4px solid var(--gold);
+      outline-offset: 4px;
+    }
+
+    @media (max-width: 860px) {
+      .hero-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .avatar-wrapper {
+        margin: 0 auto;
+      }
+      .dialog-box::before {
+        left: 50%;
+        transform: translateX(-50%);
+        width: max-content;
+      }
+      .hero-actions {
+        justify-content: center;
+      }
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      .nav-menu {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .nav-container {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        font-size: 20px;
+      }
+      .pixel-heading {
+        font-size: 13px;
+      }
+      .pixel-btn {
+        width: 100%;
+      }
+      .dialog-text-area {
+        font-size: 22px;
+      }
+      .audio-control-group {
+        justify-content: center;
+      }
+    }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+      #pixelHeroCanvas {
+        animation: none !important;
+      }
+      .typewriter-cursor {
+        display: none !important;
+      }
+      .pixel-meteor, .pixel-particle, .pixel-dust {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="crt-active">
+<!-- CRT Scanline Filter -->
+<div aria-hidden="true" class="scanlines" id="scanlinesOverlay"></div>
+<!-- FIXED NAVIGATION BAR -->
+<header class="fixed-nav" role="banner">
+<div class="nav-container">
+<a aria-label="Trang chủ RPG Portfolio" class="nav-logo" href="#hero">
+<span aria-hidden="true" class="nav-logo-heart">♥</span>
+<span class="pixel-label">SHYFU.RPG [LV.20]</span>
+</a>
+<!-- 8-Bit Audio Controls + CRT + FX Toggle -->
+<div aria-label="Điều khiển âm thanh retro, hiệu ứng CRT và hoạt họa FX" class="audio-control-group">
+<button aria-pressed="true" class="pixel-btn-sound fx-on" id="fxToggleBtn" title="Bật/Tắt hiệu ứng hoạt họa Ambient FX (Bụi sao, nhấp nháy, rung lắc)">
+<span id="fxIcon">⚡</span>
+<span id="fxLabel">FX: ON</span>
+</button>
+<button aria-pressed="true" class="pixel-btn-sound crt-on" id="crtToggleBtn" title="Bật/Tắt hiệu ứng màn hình TV CRT Scanline">
+<span id="crtIcon">📺</span>
+<span id="crtLabel">CRT: ON</span>
+</button>
+<button aria-pressed="false" class="pixel-btn-sound" id="bgmToggleBtn" title="Bật/Tắt nhạc nền RPG 8-Bit">
+<span id="bgmIcon">🎵</span>
+<span id="bgmLabel">BGM: OFF</span>
+</button>
+<button aria-pressed="true" class="pixel-btn-sound" id="sfxToggleBtn" title="Bật/Tắt âm thanh hiệu ứng SFX">
+<span id="sfxIcon">🔊</span>
+<span id="sfxLabel">SFX: ON</span>
+</button>
+</div>
+<nav aria-label="Menu điều hướng chính" class="nav-menu">
+<a class="nav-link" href="#hero"><span>1.</span>Tổng·quan</a>
+<a class="nav-link" href="#nhan-vat"><span>2.</span> Chỉ số</a>
+<a class="nav-link" href="#tui-do"><span>3.</span> Túi đồ</a>
+<a class="nav-link" href="#nhiem-vu"><span>4.</span> Nhiệm vụ</a>
+<a class="nav-link" href="#lien-he"><span>5.</span> Liên hệ</a>
+</nav>
+</div>
+</header>
+<!-- Interactive Sound Prompt Toast -->
+<aside aria-live="polite" class="sound-toast" id="soundToast" role="status" style="display: none;">
+<span>▶ BẤM ĐỂ BẬT NHẠC NỀN 8-BIT BGM!</span>
+</aside>
+<!-- MAIN VIEWPORT -->
+<main id="main-content">
+<!-- HERO RPG STAGE -->
+<section aria-labelledby="hero-name" class="hero-section" id="hero">
+<!-- Twinkling Stars Canvas / Divs (Multi-layer) -->
+<div aria-hidden="true" class="star-field" id="starField"><div class="pixel-star star-fast" style="left: 38.2795%; top: 12.6607%; animation-delay: 1.5073s;"></div><div class="pixel-star star-mid" style="left: 87.2703%; top: 22.6027%; animation-delay: 1.65606s;"></div><div class="pixel-star star-slow" style="left: 17.7855%; top: 20.9952%; animation-delay: 0.891052s;"></div><div class="pixel-star star-fast" style="left: 46.4345%; top: 66.1225%; animation-delay: 0.858044s;"></div><div class="pixel-star star-mid" style="left: 12.6072%; top: 44.889%; animation-delay: 2.94695s;"></div><div class="pixel-star star-slow" style="left: 51.1487%; top: 75.8317%; animation-delay: 2.9446s;"></div><div class="pixel-star star-fast" style="left: 57.041%; top: 18.8482%; animation-delay: 2.18411s;"></div><div class="pixel-star star-mid" style="left: 27.2412%; top: 62.1215%; animation-delay: 2.54668s;"></div><div class="pixel-star star-slow" style="left: 89.7006%; top: 3.66971%; animation-delay: 0.84126s;"></div><div class="pixel-star star-fast" style="left: 58.1354%; top: 60.9896%; animation-delay: 1.78774s;"></div><div class="pixel-star star-mid" style="left: 78.3373%; top: 59.4315%; animation-delay: 1.80637s;"></div><div class="pixel-star star-slow" style="left: 72.7826%; top: 61.4527%; animation-delay: 2.743s;"></div><div class="pixel-star star-fast" style="left: 48.4935%; top: 73.5333%; animation-delay: 0.16842s;"></div><div class="pixel-star star-mid" style="left: 72.927%; top: 59.2621%; animation-delay: 2.86098s;"></div><div class="pixel-star star-slow" style="left: 16.8366%; top: 53.6158%; animation-delay: 2.04905s;"></div><div class="pixel-star star-fast" style="left: 54.1324%; top: 23.9515%; animation-delay: 2.88095s;"></div><div class="pixel-star star-mid" style="left: 48.0199%; top: 68.1219%; animation-delay: 1.31892s;"></div><div class="pixel-star star-slow" style="left: 49.3991%; top: 12.1179%; animation-delay: 1.08764s;"></div><div class="pixel-star star-fast" style="left: 95.9951%; top: 14.3339%; animation-delay: 0.673435s;"></div><div class="pixel-star star-mid" style="left: 58.6452%; top: 19.4728%; animation-delay: 1.78034s;"></div><div class="pixel-star star-slow" style="left: 93.6813%; top: 78.6266%; animation-delay: 1.53467s;"></div><div class="pixel-star star-fast" style="left: 4.85081%; top: 43.6018%; animation-delay: 2.74874s;"></div><div class="pixel-star star-mid" style="left: 8.61383%; top: 44.6217%; animation-delay: 0.0367322s;"></div><div class="pixel-star star-slow" style="left: 1.03338%; top: 27.6982%; animation-delay: 1.06476s;"></div><div class="pixel-star star-fast" style="left: 59.0448%; top: 54.672%; animation-delay: 1.95201s;"></div><div class="pixel-star star-mid" style="left: 84.9823%; top: 61.6376%; animation-delay: 1.68317s;"></div><div class="pixel-star star-slow" style="left: 34.0523%; top: 20.5857%; animation-delay: 0.127526s;"></div><div class="pixel-star star-fast" style="left: 66.3596%; top: 42.2813%; animation-delay: 2.0887s;"></div><div class="pixel-star star-mid" style="left: 28.2746%; top: 55.7789%; animation-delay: 0.692094s;"></div><div class="pixel-star star-slow" style="left: 38.2118%; top: 13.4424%; animation-delay: 0.366484s;"></div><div class="pixel-star star-fast" style="left: 39.3472%; top: 56.4173%; animation-delay: 2.93315s;"></div><div class="pixel-star star-mid" style="left: 42.021%; top: 27.2889%; animation-delay: 1.69963s;"></div><div class="pixel-star star-slow" style="left: 82.196%; top: 34.623%; animation-delay: 2.257s;"></div><div class="pixel-star star-fast" style="left: 43.7151%; top: 79.1306%; animation-delay: 2.95421s;"></div><div class="pixel-star star-mid" style="left: 35.1688%; top: 32.2206%; animation-delay: 1.77267s;"></div><div class="pixel-star star-slow" style="left: 73.7358%; top: 9.28225%; animation-delay: 2.06187s;"></div><div class="pixel-star star-fast" style="left: 38.1496%; top: 5.3479%; animation-delay: 1.92022s;"></div><div class="pixel-star star-mid" style="left: 32.2048%; top: 61.3655%; animation-delay: 0.348142s;"></div><div class="pixel-star star-slow" style="left: 88.5346%; top: 19.9718%; animation-delay: 0.872891s;"></div><div class="pixel-star star-fast" style="left: 36.045%; top: 15.9439%; animation-delay: 2.82849s;"></div><div class="pixel-star star-mid" style="left: 44.3223%; top: 70.5615%; animation-delay: 1.8067s;"></div><div class="pixel-star star-slow" style="left: 30.9617%; top: 59.9539%; animation-delay: 0.529351s;"></div><div class="pixel-star star-fast" style="left: 23.5814%; top: 73.7639%; animation-delay: 1.24283s;"></div><div class="pixel-star star-mid" style="left: 51.713%; top: 30.8503%; animation-delay: 1.69349s;"></div><div class="pixel-star star-slow" style="left: 96.6765%; top: 49.6823%; animation-delay: 2.31842s;"></div><div class="pixel-star star-fast" style="left: 40.1619%; top: 12.7602%; animation-delay: 2.29688s;"></div><div class="pixel-star star-mid" style="left: 89.0239%; top: 16.6533%; animation-delay: 2.43946s;"></div><div class="pixel-star star-slow" style="left: 60.4314%; top: 69.7247%; animation-delay: 0.160794s;"></div></div>
+<!-- Ambient Floating Pixel Dust / Fireflies -->
+<div aria-hidden="true" class="ambient-dust-container" id="dustContainer"><div class="pixel-dust" style="left: 5.95619%; top: 10.9501%; --float-duration: 10.096678217969135s; --move-x: -1.8875836837462323px; --move-y: -104.58159912883585px; animation-delay: 4.72185s;"></div><div class="pixel-dust" style="left: 20.1589%; top: 67.6036%; --float-duration: 13.902347215643106s; --move-x: -15.974040650639347px; --move-y: -107.65235973371752px; animation-delay: 5.7402s;"></div><div class="pixel-dust" style="left: 43.7912%; top: 14.3186%; --float-duration: 11.491549926314477s; --move-x: -28.065766008152586px; --move-y: -43.94231529295701px; animation-delay: 5.40154s;"></div><div class="pixel-dust" style="left: 81.7223%; top: 49.093%; --float-duration: 6.626771711442448s; --move-x: 9.08395022077281px; --move-y: -113.02284515608422px; animation-delay: 2.78596s;"></div><div class="pixel-dust" style="left: 35.5942%; top: 18.6652%; --float-duration: 6.337903800172682s; --move-x: 13.329076300830707px; --move-y: -123.07140058981165px; animation-delay: 0.806384s;"></div><div class="pixel-dust" style="left: 41.9323%; top: 33.7829%; --float-duration: 10.648178305677188s; --move-x: -39.6315302140158px; --move-y: -60.695137828088306px; animation-delay: 0.445769s;"></div><div class="pixel-dust" style="left: 82.2155%; top: 62.3994%; --float-duration: 12.95283050076106s; --move-x: -39.4166704671056px; --move-y: -135.85842574918456px; animation-delay: 3.3523s;"></div><div class="pixel-dust" style="left: 7.01118%; top: 42.9898%; --float-duration: 12.971022825636181s; --move-x: 37.30791025515809px; --move-y: -126.45747508717434px; animation-delay: 6.67518s;"></div><div class="pixel-dust" style="left: 66.4515%; top: 16.8866%; --float-duration: 8.4545360306291s; --move-x: 1.8649932338527808px; --move-y: -107.48985135190954px; animation-delay: 6.0762s;"></div><div class="pixel-dust" style="left: 84.2521%; top: 45.4855%; --float-duration: 6.563073973551139s; --move-x: 29.794345264704152px; --move-y: -108.7452429274264px; animation-delay: 1.93829s;"></div><div class="pixel-dust" style="left: 25.9924%; top: 57.9592%; --float-duration: 7.560558195244546s; --move-x: 22.179118691349238px; --move-y: -110.42586914830078px; animation-delay: 1.45642s;"></div><div class="pixel-dust" style="left: 33.0583%; top: 30.3169%; --float-duration: 11.15761760752294s; --move-x: -11.999928709138556px; --move-y: -114.12737419492885px; animation-delay: 4.2018s;"></div><div class="pixel-dust" style="left: 73.1306%; top: 50.9708%; --float-duration: 10.242371865690902s; --move-x: -37.44709010228845px; --move-y: -126.63902776485386px; animation-delay: 5.93102s;"></div><div class="pixel-dust" style="left: 36.0471%; top: 54.1876%; --float-duration: 7.948130038656494s; --move-x: 16.760307860274295px; --move-y: -133.9469143647127px; animation-delay: 3.13257s;"></div><div class="pixel-dust" style="left: 82.8569%; top: 53.2501%; --float-duration: 11.512909903316423s; --move-x: -38.7610657115922px; --move-y: -68.08061394640735px; animation-delay: 0.630733s;"></div><div class="pixel-dust" style="left: 17.9172%; top: 93.4617%; --float-duration: 11.24654257551983s; --move-x: 27.00846963835535px; --move-y: -45.561702162739294px; animation-delay: 0.14936s;"></div><div class="pixel-dust" style="left: 57.7866%; top: 23.3022%; --float-duration: 13.22747110413452s; --move-x: -39.45330264586302px; --move-y: -77.85310094840946px; animation-delay: 5.41373s;"></div><div class="pixel-dust" style="left: 60.8437%; top: 42.7268%; --float-duration: 11.605205509070075s; --move-x: 3.379676490943586px; --move-y: -127.60394230372256px; animation-delay: 0.477247s;"></div></div>
+<!-- Shooting Star Container -->
+<div aria-hidden="true" class="shooting-star-container" id="shootingStarContainer"><div class="pixel-meteor active" style="left: 7.80466%; top: 32.8385%;"></div></div>
+<div class="hero-content">
+<!-- 8-Bit Pixel Hero Sprite & Avatar Wrapper -->
+<div class="avatar-wrapper">
+<!-- Floating Pixel Emote Speech Bubble above character -->
+<div aria-hidden="true" class="hero-emote-bubble" id="heroEmoteBubble">
+<span id="heroEmoteIcon">💬 ...</span>
+</div>
+<div class="avatar-frame">
+<canvas aria-label="Nhân vật hiệp sĩ pixel Nguyễn Hồ Sỹ Phú" height="16" id="pixelHeroCanvas" width="16"></canvas>
+</div>
+<span class="pixel-label" style="color: var(--mint);">CLASS: FULLSTACK DEV</span>
+<!-- Mini Retro HP/MP Status Bars -->
+<div class="hero-vitals-container">
+<div class="hero-vital-row">
+<span class="hero-vital-label" style="color: var(--pink);">HP</span>
+<div class="status-bar-outer status-bar-pulse">
+<div class="status-bar-fill status-bar-hp"></div>
+</div>
+<span style="font-size: 8px; color: var(--cream-dim);">100/100</span>
+</div>
+<div class="hero-vital-row">
+<span class="hero-vital-label" style="color: var(--blue-light);">MP</span>
+<div class="status-bar-outer status-bar-pulse">
+<div class="status-bar-fill status-bar-mp"></div>
+</div>
+<span style="font-size: 8px; color: var(--cream-dim);">999/999</span>
+</div>
+</div>
+</div>
+<!-- NPC Dialog Box with Typewriter -->
+<div class="dialog-box">
+<h1 class="pixel-heading" id="hero-name" style="color: var(--gold); margin-bottom: 6px;">NGUYỄN HỒ SỸ PHÚ</h1>
+<p class="pixel-label" style="color: var(--cream-dim); margin-bottom: 12px;">FULLSTACK DEVELOPER (FRESHER / INTERN)</p>
+<div aria-live="polite" class="dialog-text-area">
+<span id="typewriterText">Xin chào! Mình là Phú — Fullstack Developer tập trung thiết kế hệ thống Backend API, Microservices và Event-Driven. Mục tiêu hiện tại: gia nhập đội ngũ thực tế với Java Spring Boot &amp; Next.js!</span><span aria-hidden="true" class="typewriter-cursor" id="typewriterCursor"></span>
+</div>
+<div class="hero-actions">
+<a class="pixel-btn pixel-btn-gold" href="#nhiem-vu" id="btnHeroQuests">
+<span>⚔</span> Xem dự án
+            </a>
+<a class="pixel-btn pixel-btn-mint" href="#lien-he">
+<span>✉</span> Liên hệ ngay
+            </a>
+<a class="pixel-btn" href="https://github.com/NhsPhu" rel="noopener" target="_blank">
+<span>★</span> Mở GitHub
+            </a>
+</div>
+</div>
+</div>
+<!-- Horizon Atmospheric Glow Strip -->
+<div aria-hidden="true" class="horizon-glow"></div>
+<!-- Bottom Pixelated Mountains -->
+<div aria-hidden="true" class="pixel-hills"></div>
+<div aria-hidden="true" class="pixel-hills-front"></div>
+</section>
+<!-- SECTION 1: THÔNG TIN NHÂN VẬT (BẢNG CHỈ SỐ) -->
+<section aria-labelledby="stats-heading" class="main-container" id="nhan-vat">
+<div class="section-title">
+<span aria-hidden="true" class="badge-num">01</span>
+<h2 id="stats-heading">THÔNG TIN NHÂN VẬT</h2>
+</div>
+<div class="stats-grid">
+<!-- Cột trái: Bảng thông số cơ bản -->
+<div class="pixel-box">
+<h3 class="pixel-label" style="color: var(--gold); margin-bottom: 14px;">BẢNG CHỈ SỐ STATS</h3>
+<div class="stat-row">
+<span class="stat-label">Họ và tên:</span>
+<span class="stat-value">Nguyễn Hồ Sỹ Phú</span>
+</div>
+<div class="stat-row">
+<span class="stat-label">Ngày sinh:</span>
+<span class="stat-value">16/05/2005</span>
+</div>
+<div class="stat-row">
+<span class="stat-label">Nơi cư ngụ:</span>
+<span class="stat-value">Gò Vấp, TP. Hồ Chí Minh</span>
+</div>
+<div class="stat-row">
+<span class="stat-label">Học viện:</span>
+<span class="stat-value">Đại học Gia Định (2023 - 2026)</span>
+</div>
+<div class="stat-row">
+<span class="stat-label">Chuyên ngành:</span>
+<span class="stat-value">Kỹ thuật Phần mềm</span>
+</div>
+<!-- Thanh GPA tiến độ với hiệu ứng shimmer & floater -->
+<div class="stat-bar-container">
+<span aria-hidden="true" class="exp-floater">+EXP BOOSTED!</span>
+<div class="stat-bar-label">
+<span>EXP / GPA TÍCH LŨY</span>
+<span>7.34 / 10.0</span>
+</div>
+<div aria-valuemax="10" aria-valuemin="0" aria-valuenow="7.34" class="pixel-progress-bar" role="progressbar">
+<div class="pixel-progress-fill"></div>
+</div>
+</div>
+</div>
+<!-- Cột phải: Hướng phát triển & Mục tiêu -->
+<div class="pixel-box">
+<h3 class="pixel-label" style="color: var(--gold); margin-bottom: 14px;">NHIỆM VỤ &amp; CHIẾN LƯỢC</h3>
+<div class="quest-log-box" style="margin-top: 0;">
+<h4>HƯỚNG TẬP TRUNG (SPECIALIZATION)</h4>
+<div style="margin-top: 8px;">
+<span class="pixel-tag pixel-tag-gold">Backend API</span>
+<span class="pixel-tag pixel-tag-gold">Microservices</span>
+<span class="pixel-tag pixel-tag-gold">Event-Driven</span>
+<span class="pixel-tag pixel-tag-gold">DevOps</span>
+</div>
+</div>
+<div class="quest-log-box">
+<h4>ĐANG LUYỆN TẬP (IN TRAINING)</h4>
+<div style="margin-top: 8px;">
+<span class="pixel-tag">Kubernetes</span>
+<span class="pixel-tag">gRPC</span>
+<span class="pixel-tag">System Design</span>
+<span class="pixel-tag">Unit Testing</span>
+</div>
+</div>
+<div class="quest-log-box">
+<h4>MỤC TIÊU SỰ NGHIỆP (CAREER QUEST)</h4>
+<p style="font-size: 21px; color: var(--cream); margin-top: 6px;">
+              Tìm vị trí Intern/Fresher Fullstack hoặc Backend Developer để áp dụng Java Spring Boot, Next.js và kiến trúc Microservices vào dự án thực tế, học hỏi từ đội ngũ kỹ thuật và phát triển tư duy thiết hệ thống backend quy mô lớn. Cam kết học hỏi liên tục và đóng góp giá trị kỹ thuật bền vững.
+            </p>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 2: TÚI ĐỒ CÔNG NGHỆ (INVENTORY) -->
+<section aria-labelledby="inventory-heading" class="main-container" id="tui-do">
+<div class="section-title">
+<span aria-hidden="true" class="badge-num">02</span>
+<h2 id="inventory-heading">TÚI ĐỒ CÔNG NGHỆ</h2>
+</div>
+<div class="inventory-grid">
+<!-- Ô 1: Backend -->
+<div class="inventory-slot" tabindex="0">
+<div class="slot-header">
+<div aria-hidden="true" class="slot-icon">☕</div>
+<div class="slot-title">BACKEND WEAPONS</div>
+</div>
+<div class="slot-items">
+<span class="pixel-tag pixel-tag-gold">Java</span>
+<span class="pixel-tag pixel-tag-gold">Spring Boot</span>
+<span class="pixel-tag">Spring Security</span>
+<span class="pixel-tag">JWT</span>
+<span class="pixel-tag">Python</span>
+<span class="pixel-tag">FastAPI</span>
+</div>
+</div>
+<!-- Ô 2: Frontend & Mobile -->
+<div class="inventory-slot" tabindex="0">
+<div class="slot-header">
+<div aria-hidden="true" class="slot-icon">⚡</div>
+<div class="slot-title">FRONTEND &amp; MOBILE</div>
+</div>
+<div class="slot-items">
+<span class="pixel-tag pixel-tag-gold">Next.js</span>
+<span class="pixel-tag">React</span>
+<span class="pixel-tag">TypeScript</span>
+<span class="pixel-tag">TailwindCSS</span>
+<span class="pixel-tag">React Native</span>
+<span class="pixel-tag">Kotlin</span>
+</div>
+</div>
+<!-- Ô 3: Database & Messaging -->
+<div class="inventory-slot" tabindex="0">
+<div class="slot-header">
+<div aria-hidden="true" class="slot-icon">💾</div>
+<div class="slot-title">DATA &amp; MESSAGE VAULT</div>
+</div>
+<div class="slot-items">
+<span class="pixel-tag pixel-tag-gold">PostgreSQL</span>
+<span class="pixel-tag">MySQL</span>
+<span class="pixel-tag pixel-tag-gold">Redis</span>
+<span class="pixel-tag">Elasticsearch</span>
+<span class="pixel-tag pixel-tag-gold">RabbitMQ</span>
+</div>
+</div>
+<!-- Ô 4: DevOps & Observability -->
+<div class="inventory-slot" tabindex="0">
+<div class="slot-header">
+<div aria-hidden="true" class="slot-icon">🛡</div>
+<div class="slot-title">DEVOPS &amp; RADAR</div>
+</div>
+<div class="slot-items">
+<span class="pixel-tag">Docker</span>
+<span class="pixel-tag">GitHub Actions</span>
+<span class="pixel-tag">Prometheus</span>
+<span class="pixel-tag">Grafana</span>
+<span class="pixel-tag">Git</span>
+</div>
+</div>
+<!-- Ô 5: AI & Data -->
+<div class="inventory-slot" tabindex="0">
+<div class="slot-header">
+<div aria-hidden="true" class="slot-icon">🔮</div>
+<div class="slot-title">AI &amp; DATA SPELLS</div>
+</div>
+<div class="slot-items">
+<span class="pixel-tag">scikit-learn</span>
+<span class="pixel-tag">Streamlit</span>
+<span class="pixel-tag">Plotly</span>
+</div>
+</div>
+<!-- Ô 6: Công cụ hỗ trợ -->
+<div class="inventory-slot" tabindex="0">
+<div class="slot-header">
+<div aria-hidden="true" class="slot-icon">🛠</div>
+<div class="slot-title">EQUIPMENT &amp; UTILS</div>
+</div>
+<div class="slot-items">
+<span class="pixel-tag">Postman</span>
+<span class="pixel-tag">Swagger</span>
+<span class="pixel-tag">FFmpeg</span>
+<span class="pixel-tag">Flyway</span>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 3: NHIỆM VỤ DỰ ÁN (QUEST LOG) -->
+<section aria-labelledby="quests-heading" class="main-container" id="nhiem-vu">
+<div class="section-title">
+<span aria-hidden="true" class="badge-num">03</span>
+<h2 id="quests-heading">NHIỆM VỤ ĐÃ HOÀN THÀNH (DỰ ÁN)</h2>
+</div>
+<!-- BOSS QUEST: Omni Marketplace với viền glow kim loại & nhấp nháy pixel badge -->
+<article aria-labelledby="boss-title" class="boss-card">
+<div class="boss-badge">★ BOSS QUEST ★</div>
+<h3 class="boss-title" id="boss-title">1) OMNI MARKETPLACE</h3>
+<p class="boss-subtitle">
+          Nền tảng thương mại điện tử đa nhà bán (B2B2C) theo mô hình Shopee/Tiki, xây từ đầu với kiến trúc Modular Monolith + Hexagonal Architecture.
+        </p>
+<div class="quest-specs-grid">
+<div class="spec-item">
+<span class="spec-key">BACKEND ARCHITECTURE</span>
+            Java 17, Spring Boot 3, Hexagonal Architecture, Flyway Migration
+          </div>
+<div class="spec-item">
+<span class="spec-key">FRONTEND INTERFACE</span>
+            Next.js 16 (App Router), React 19, TypeScript 5, TailwindCSS 4, Ant Design
+          </div>
+<div class="spec-item">
+<span class="spec-key">EVENT-DRIVEN</span>
+            RabbitMQ xử lý bất đồng bộ (đặt hàng, thanh toán, thông báo)
+          </div>
+<div class="spec-item">
+<span class="spec-key">FULL-TEXT SEARCH</span>
+            Elasticsearch 8, full-text search, lọc đa chiều, đồng bộ real-time
+          </div>
+<div class="spec-item">
+<span class="spec-key">CACHE &amp; RATE LIMIT</span>
+            Redis, Bucket4j, giảm ~60% truy vấn database
+          </div>
+<div class="spec-item">
+<span class="spec-key">INTEGRATIONS</span>
+            VNPay (thanh toán), GHN (vận chuyển), Cloudinary (media)
+          </div>
+<div class="spec-item">
+<span class="spec-key">OBSERVABILITY</span>
+            Prometheus, Grafana, Zipkin (tracing), Sentry, k6 (load test)
+          </div>
+<div class="spec-item">
+<span class="spec-key">AUTOMATION CI/CD</span>
+            GitHub Actions tự động build, test, deploy khi merge vào main
+          </div>
+</div>
+<div style="margin-top: 20px;">
+<a class="pixel-btn pixel-btn-gold" href="https://github.com/NhsPhu/Omni" rel="noopener" target="_blank">
+<span>⚔</span> Mở repo Omni Marketplace
+          </a>
+</div>
+</article>
+<!-- 3 SIDE QUESTS -->
+<div class="side-quests-grid">
+<!-- Quest 2: Movie Streaming System -->
+<article class="quest-card" tabindex="0">
+<div class="quest-card-header">
+<span class="pixel-label quest-badge-tag" style="color: var(--mint);">QUEST #02 [MICROSERVICES]</span>
+<h3 class="quest-card-title" style="margin-top: 8px;">MOVIE STREAMING SYSTEM</h3>
+<p class="quest-card-desc">
+              Hệ thống phát video Adaptive Streaming (HLS) đa nền tảng theo kiến trúc Microservices.
+            </p>
+<ul class="quest-detail-list">
+<li><strong>Backend:</strong> Java Spring Boot, Spring Data JPA, Spring Security</li>
+<li><strong>Mobile:</strong> Kotlin Android, MVVM, ExoPlayer (HLS adaptive)</li>
+<li><strong>Web:</strong> React 18, Video.js</li>
+<li><strong>AI Service:</strong> Python FastAPI, gợi ý Collaborative Filtering (Scikit-learn)</li>
+<li><strong>Media:</strong> FFmpeg tự transcode 4 mức (1080p → 360p), HLS segments</li>
+<li>Đồng bộ tiến độ xem real-time giữa Web và Android</li>
+<li><strong>DevOps:</strong> Docker, Docker Compose</li>
+</ul>
+</div>
+<div>
+<a class="pixel-btn pixel-btn-mint" href="https://github.com/NhsPhu/MovieFilm" rel="noopener" target="_blank">
+<span>⚔</span> Mở repo Movie Streaming
+            </a>
+</div>
+</article>
+<!-- Quest 3: AI Sales Analysis Dashboard -->
+<article class="quest-card" tabindex="0">
+<div class="quest-card-header">
+<span class="pixel-label quest-badge-tag" style="color: var(--mint);">QUEST #03 [DATA / BI]</span>
+<h3 class="quest-card-title" style="margin-top: 8px;">AI SALES ANALYSIS DASHBOARD</h3>
+<p class="quest-card-desc">
+              Hệ thống Business Intelligence tự động hóa phân tích dữ liệu bán hàng.
+            </p>
+<ul class="quest-detail-list">
+<li><strong>ETL Pipeline:</strong> trích xuất và chuẩn hóa dữ liệu từ CSV/JSON</li>
+<li>Dashboard KPI tương tác trực quan với Plotly (Streamlit)</li>
+<li><strong>AI Integration:</strong> tích hợp Groq API, truy vấn dữ liệu bằng ngôn ngữ tự nhiên</li>
+<li>Dự báo xu hướng doanh thu bằng Facebook Prophet (MAPE &lt; 8%)</li>
+</ul>
+</div>
+<div>
+<a class="pixel-btn pixel-btn-mint" href="https://github.com/NhsPhu/Pro-Sales-Analytics" rel="noopener" target="_blank">
+<span>⚔</span> Mở repo AI Sales Dashboard
+            </a>
+</div>
+</article>
+<!-- Quest 4: Bookstore Manager -->
+<article class="quest-card" tabindex="0">
+<div class="quest-card-header">
+<span class="pixel-label quest-badge-tag" style="color: var(--mint);">QUEST #04 [DESKTOP APP]</span>
+<h3 class="quest-card-title" style="margin-top: 8px;">BOOKSTORE MANAGER</h3>
+<p class="quest-card-desc">Ứng dụng desktop quản lý nhà sách toàn diện bằng Python, CustomTkinter và MySQL: bán hàng POS, quản lý kho, CRM khách hàng, báo cáo doanh thu và phân quyền Admin/Kho/Thu ngân.</p>
+<ul class="quest-detail-list"><li><strong>GUI &amp; Core:</strong> Python, CustomTkinter, cơ sở dữ liệu MySQL tối ưu CRUD</li>
+<li><strong>Tính năng chính:</strong> Bán hàng POS, Quản lý kho &amp; cảnh báo tồn kho, CRM khách hàng</li>
+<li><strong>Báo cáo &amp; Phân quyền:</strong> Thống kê doanh thu trực quan, phân quyền chặt chẽ (Admin / Kho / Thu ngân)</li></ul>
+</div>
+<div><a class="pixel-btn pixel-btn-mint" href="https://github.com/NhsPhu/Bookstore" rel="noopener noreferrer" target="_blank">
+<span>⚔</span> Mở repo Bookstore
+</a></div>
+</article>
+</div>
+</section>
+<!-- SECTION 4: LIÊN HỆ (TRẠM THƯ TÍN RPG) -->
+<section aria-labelledby="contact-heading" class="main-container" id="lien-he">
+<div class="section-title">
+<span aria-hidden="true" class="badge-num">04</span>
+<h2 id="contact-heading">TRẠM THƯ TÍN (LIÊN HỆ)</h2>
+</div>
+<div class="contact-card">
+<p class="contact-intro">
+          Sẵn sàng gia nhập party kỹ thuật, học hỏi và đóng góp vào các hệ thống Backend quy mô lớn. Hãy gửi lời mời trao đổi!
+        </p>
+<div class="contact-buttons-grid">
+<a class="pixel-btn pixel-btn-gold" href="mailto:nguyenhosyphu@gmail.com">
+<span>✉</span> nguyenhosyphu@gmail.com
+          </a>
+<a class="pixel-btn pixel-btn-pink" href="tel:0337843118">
+<span>☎</span> 0337843118
+          </a>
+<a class="pixel-btn" href="https://github.com/NhsPhu" rel="noopener" target="_blank">
+<span>★</span> GitHub Profile
+          </a>
+<a class="pixel-btn pixel-btn-mint" href="https://www.facebook.com/Nh.Shyfu/" rel="noopener" target="_blank">
+<span>✦</span> Facebook
+          </a>
+</div>
+<div>
+<span class="contact-address">
+            📍 Địa chỉ căn cứ: Quận Gò Vấp, TP. Hồ Chí Minh, Việt Nam
+          </span>
+</div>
+</div>
+</section>
+</main>
+<!-- FOOTER -->
+<footer class="pixel-footer" role="contentinfo">
+<p class="footer-quote">
+      "When you have reached the bedrock of the abyss, every stride you take is toward the light."
+    </p>
+<p class="footer-copyright">
+      © <span id="currentYear">2026</span> NGUYỄN HỒ SỸ PHÚ • RETRO PIXEL ART RPG PORTFOLIO
+    </p>
+</footer>
+<!-- =========================================
+       8-BIT CHIPTUNE SYNTHESIZER & AUDIO ENGINE
+       (Pure Web Audio API inline - No external files)
+       ========================================= -->
+<script>
+    const RetroAudio = (function() {
+      let audioCtx = null;
+      let isBgmPlaying = false;
+      let isSfxEnabled = true;
+      let bgmTimeoutId = null;
+      let currentBgmStep = 0;
+      let masterGainNode = null;
+      let bgmGainNode = null;
+      let sfxGainNode = null;
+
+      function getContext() {
+        if (!audioCtx) {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContextClass) return null;
+          audioCtx = new AudioContextClass();
+
+          masterGainNode = audioCtx.createGain();
+          masterGainNode.gain.setValueAtTime(0.35, audioCtx.currentTime);
+          masterGainNode.connect(audioCtx.destination);
+
+          bgmGainNode = audioCtx.createGain();
+          bgmGainNode.gain.setValueAtTime(0.18, audioCtx.currentTime);
+          bgmGainNode.connect(masterGainNode);
+
+          sfxGainNode = audioCtx.createGain();
+          sfxGainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+          sfxGainNode.connect(masterGainNode);
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        return audioCtx;
+      }
+
+      // SFX: Light high 'tick' on hover
+      function playHover() {
+        if (!isSfxEnabled) return;
+        const ctx = getContext();
+        if (!ctx) return;
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        const now = ctx.currentTime;
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.exponentialRampToValueAtTime(1200, now + 0.03);
+
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+
+        osc.connect(gain);
+        gain.connect(sfxGainNode || ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.04);
+      }
+
+      // SFX: Retro 8-bit blip / select on button click
+      function playClick() {
+        if (!isSfxEnabled) return;
+        const ctx = getContext();
+        if (!ctx) return;
+
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'square';
+
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.setValueAtTime(880, now + 0.04);
+
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.setValueAtTime(0.2, now + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+        osc.connect(gain);
+        gain.connect(sfxGainNode || ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.11);
+      }
+
+      // SFX: Level-up / Quest Fanfare
+      function playFanfare() {
+        if (!isSfxEnabled) return;
+        const ctx = getContext();
+        if (!ctx) return;
+
+        const notes = [392.00, 523.25, 659.25, 783.99];
+        const step = 0.07;
+        notes.forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'square';
+          const startTime = ctx.currentTime + (i * step);
+          const duration = i === notes.length - 1 ? 0.35 : step * 0.9;
+
+          osc.frequency.setValueAtTime(freq, startTime);
+          gain.gain.setValueAtTime(0.22, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+          osc.connect(gain);
+          gain.connect(sfxGainNode || ctx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + duration);
+        });
+      }
+
+      // 8-bit Adventure Overworld BGM (Melodic Chiptune Loop)
+      const C4 = 261.63, E4 = 329.63, F4 = 349.23, G4 = 392.00, A4 = 440.00, B4 = 493.88;
+      const C5 = 523.25, D5 = 587.33, E5 = 659.25;
+      
+      const melodySequence = [
+        { freq: C4, dur: 0.12, type: 'square' },
+        { freq: E4, dur: 0.12, type: 'square' },
+        { freq: G4, dur: 0.12, type: 'square' },
+        { freq: C5, dur: 0.22, type: 'square' },
+        { freq: G4, dur: 0.12, type: 'square' },
+        { freq: E4, dur: 0.12, type: 'square' },
+        { freq: F4, dur: 0.12, type: 'square' },
+        { freq: A4, dur: 0.12, type: 'square' },
+        { freq: C5, dur: 0.12, type: 'square' },
+        { freq: D5, dur: 0.22, type: 'square' },
+        { freq: C5, dur: 0.12, type: 'square' },
+        { freq: A4, dur: 0.12, type: 'square' },
+        { freq: G4, dur: 0.12, type: 'square' },
+        { freq: B4, dur: 0.12, type: 'square' },
+        { freq: D5, dur: 0.12, type: 'square' },
+        { freq: E5, dur: 0.22, type: 'square' },
+        { freq: D5, dur: 0.12, type: 'square' },
+        { freq: B4, dur: 0.12, type: 'square' },
+        { freq: C5, dur: 0.24, type: 'triangle' },
+        { freq: G4, dur: 0.12, type: 'triangle' },
+        { freq: E4, dur: 0.12, type: 'triangle' },
+        { freq: C4, dur: 0.28, type: 'triangle' }
+      ];
+
+      function scheduleNextBgmNote() {
+        if (!isBgmPlaying) return;
+        const ctx = getContext();
+        if (!ctx) return;
+
+        const note = melodySequence[currentBgmStep];
+        const now = ctx.currentTime;
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = note.type || 'square';
+        osc.frequency.setValueAtTime(note.freq, now);
+
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + (note.dur * 0.92));
+
+        osc.connect(gain);
+        gain.connect(bgmGainNode || ctx.destination);
+        osc.start(now);
+        osc.stop(now + note.dur);
+
+        if (currentBgmStep % 3 === 0) {
+          const bassOsc = ctx.createOscillator();
+          const bassGain = ctx.createGain();
+          bassOsc.type = 'triangle';
+          bassOsc.frequency.setValueAtTime(note.freq / 2, now);
+          bassGain.gain.setValueAtTime(0.15, now);
+          bassGain.gain.exponentialRampToValueAtTime(0.001, now + (note.dur * 1.5));
+          bassOsc.connect(bassGain);
+          bassGain.connect(bgmGainNode || ctx.destination);
+          bassOsc.start(now);
+          bassOsc.stop(now + note.dur * 1.6);
+        }
+
+        currentBgmStep = (currentBgmStep + 1) % melodySequence.length;
+        const stepInterval = note.dur * 1000 + 40;
+        bgmTimeoutId = setTimeout(scheduleNextBgmNote, stepInterval);
+      }
+
+      function startBgm() {
+        getContext();
+        if (isBgmPlaying) return;
+        isBgmPlaying = true;
+        currentBgmStep = 0;
+        scheduleNextBgmNote();
+      }
+
+      function stopBgm() {
+        isBgmPlaying = false;
+        if (bgmTimeoutId) {
+          clearTimeout(bgmTimeoutId);
+          bgmTimeoutId = null;
+        }
+      }
+
+      function toggleBgm() {
+        if (isBgmPlaying) {
+          stopBgm();
+          return false;
+        } else {
+          startBgm();
+          return true;
+        }
+      }
+
+      function toggleSfx() {
+        isSfxEnabled = !isSfxEnabled;
+        return isSfxEnabled;
+      }
+
+      return {
+        initContext: getContext,
+        startBgm,
+        stopBgm,
+        toggleBgm,
+        toggleSfx,
+        playHover,
+        playClick,
+        playFanfare,
+        getBgmState: () => isBgmPlaying,
+        getSfxState: () => isSfxEnabled
+      };
+    })();
+
+    /* Dynamic Year in Footer */
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+    /* 2. MULTI-LAYER STAR FIELD GENERATOR (3 Speeds: fast, mid, slow) */
+    (function initStars() {
+      const starField = document.getElementById('starField');
+      if (!starField) return;
+      const count = 48;
+      const speedClasses = ['star-fast', 'star-mid', 'star-slow'];
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        const speedClass = speedClasses[i % speedClasses.length];
+        star.className = `pixel-star ${speedClass}`;
+        star.style.left = (Math.random() * 98 + 1) + '%';
+        star.style.top = (Math.random() * 80 + 1) + '%';
+        star.style.animationDelay = (Math.random() * 3) + 's';
+        starField.appendChild(star);
+      }
+    })();
+
+    /* 2. AMBIENT FLOATING PIXEL DUST / FIREFLIES */
+    (function initAmbientDust() {
+      const dustContainer = document.getElementById('dustContainer');
+      if (!dustContainer) return;
+      const count = 18;
+      for (let i = 0; i < count; i++) {
+        const dust = document.createElement('div');
+        dust.className = 'pixel-dust';
+        dust.style.left = (Math.random() * 95) + '%';
+        dust.style.top = (Math.random() * 85 + 10) + '%';
+        dust.style.setProperty('--float-duration', (6 + Math.random() * 8) + 's');
+        dust.style.setProperty('--move-x', ((Math.random() - 0.5) * 80) + 'px');
+        dust.style.setProperty('--move-y', (-(40 + Math.random() * 100)) + 'px');
+        dust.style.animationDelay = (Math.random() * 7) + 's';
+        dustContainer.appendChild(dust);
+      }
+    })();
+
+    /* SHOOTING STAR (METEOR) RANDOM SPAWNER */
+    (function initShootingStars() {
+      const container = document.getElementById('shootingStarContainer');
+      if (!container) return;
+
+      function spawnMeteor() {
+        if (document.body.classList.contains('fx-disabled') || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          setTimeout(spawnMeteor, 4000);
+          return;
+        }
+        const meteor = document.createElement('div');
+        meteor.className = 'pixel-meteor active';
+        const startX = Math.random() * 65;
+        const startY = Math.random() * 35;
+        meteor.style.left = startX + '%';
+        meteor.style.top = startY + '%';
+        container.appendChild(meteor);
+
+        setTimeout(() => {
+          meteor.remove();
+        }, 1300);
+
+        const nextTime = 3500 + Math.random() * 4500;
+        setTimeout(spawnMeteor, nextTime);
+      }
+
+      setTimeout(spawnMeteor, 1800);
+    })();
+
+    /* PIXEL CLICK PARTICLES SPARKLE EFFECT */
+    (function initClickParticles() {
+      const colors = ['#f7b731', '#20bf6b', '#eb3b5a', '#4d86e9', '#f4edd4'];
+
+      window.addEventListener('click', (e) => {
+        if (document.body.classList.contains('fx-disabled') || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        const count = 7;
+        for (let i = 0; i < count; i++) {
+          const particle = document.createElement('div');
+          particle.className = 'pixel-particle';
+          particle.style.left = e.clientX + 'px';
+          particle.style.top = e.clientY + 'px';
+          particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+          const angle = (Math.PI * 2 * i) / count + (Math.random() * 0.4 - 0.2);
+          const distance = 25 + Math.random() * 35;
+          const dx = Math.round(Math.cos(angle) * distance) + 'px';
+          const dy = Math.round(Math.sin(angle) * distance + 20) + 'px';
+
+          particle.style.setProperty('--dx', dx);
+          particle.style.setProperty('--dy', dy);
+
+          document.body.appendChild(particle);
+          setTimeout(() => {
+            particle.remove();
+          }, 620);
+        }
+      });
+    })();
+
+    /* Pixel Avatar Render on 16x16 Canvas */
+    (function drawPixelHero() {
+      const canvas = document.getElementById('pixelHeroCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      
+      const _ = 'transparent';
+      const H = '#070814'; // Hair dark
+      const S = '#f4edd4'; // Skin tone
+      const E = '#20bf6b'; // Eyes mint green
+      const B = '#2e59a7'; // Armor blue
+      const G = '#f7b731'; // Gold crest / belt
+      const R = '#eb3b5a'; // Red cape
+      const K = '#12152b'; // Boots/Pants
+
+      const sprite = [
+        [_, _, _, H, H, H, H, H, H, _, _, _, _, _, _, _],
+        [_, _, H, H, H, H, H, H, H, H, _, _, _, _, _, _],
+        [_, H, H, S, S, S, S, S, H, H, H, _, _, _, _, _],
+        [_, H, S, S, H, S, S, H, S, S, H, _, _, _, _, _],
+        [_, H, S, E, H, S, S, E, H, S, H, _, _, _, _, _],
+        [_, H, S, S, S, S, S, S, S, S, H, _, _, _, _, _],
+        [_, _, H, S, S, R, R, S, S, H, _, _, _, _, _, _],
+        [_, _, _, H, H, R, R, H, H, _, _, _, _, _, _, _],
+        [_, _, R, B, B, G, G, B, B, R, _, _, _, _, _, _],
+        [_, R, R, B, B, G, G, B, B, R, R, _, _, _, _, _],
+        [_, R, _, B, B, B, B, B, B, _, R, _, _, _, _, _],
+        [_, _, _, B, B, G, G, B, B, _, _, _, _, _, _, _],
+        [_, _, _, K, K, _, _, K, K, _, _, _, _, _, _, _],
+        [_, _, _, K, K, _, _, K, K, _, _, _, _, _, _, _],
+        [_, _, H, H, H, _, _, H, H, H, _, _, _, _, _, _],
+        [_, _, H, H, H, _, _, H, H, H, _, _, _, _, _, _]
+      ];
+
+      for (let y = 0; y < 16; y++) {
+        for (let x = 0; x < 16; x++) {
+          const color = sprite[y][x];
+          if (color !== 'transparent') {
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, 1, 1);
+          }
+        }
+      }
+    })();
+
+    /* 1. EMOTE BUBBLE CYCLING OVER CHARACTER HEAD */
+    (function initHeroEmotes() {
+      const emoteIcon = document.getElementById('heroEmoteIcon');
+      if (!emoteIcon) return;
+      const emotes = ['💬 ...', '💡 !', '♥ EXP', '⚔ READY!'];
+      let emoteIdx = 0;
+      setInterval(() => {
+        if (document.body.classList.contains('fx-disabled')) return;
+        emoteIdx = (emoteIdx + 1) % emotes.length;
+        emoteIcon.textContent = emotes[emoteIdx];
+      }, 3600);
+    })();
+
+    /* Typewriter Dialog Script with Level Up Sound trigger */
+    (function runTypewriter() {
+      const textElement = document.getElementById('typewriterText');
+      const cursorElement = document.getElementById('typewriterCursor');
+      const emoteIcon = document.getElementById('heroEmoteIcon');
+      if (!textElement) return;
+
+      const message = "Xin chào! Mình là Phú — Fullstack Developer tập trung thiết kế hệ thống Backend API, Microservices và Event-Driven. Mục tiêu hiện tại: gia nhập đội ngũ thực tế với Java Spring Boot & Next.js!";
+
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        textElement.textContent = message;
+        return;
+      }
+
+      let index = 0;
+      const speed = 28;
+
+      function typeChar() {
+        if (index < message.length) {
+          textElement.textContent += message.charAt(index);
+          index++;
+          setTimeout(typeChar, speed);
+        } else {
+          // Finished typewriter: popup lightbulb emote & fanfare
+          if (emoteIcon) emoteIcon.textContent = '💡 READY!';
+          setTimeout(() => {
+            RetroAudio.playFanfare();
+          }, 250);
+        }
+      }
+
+      setTimeout(typeChar, 350);
+    })();
+
+    /* Audio, CRT & FX Toggle Controls Binding */
+    (function setupControls() {
+      const bgmBtn = document.getElementById('bgmToggleBtn');
+      const bgmLabel = document.getElementById('bgmLabel');
+      const bgmIcon = document.getElementById('bgmIcon');
+      const sfxBtn = document.getElementById('sfxToggleBtn');
+      const sfxLabel = document.getElementById('sfxLabel');
+      const sfxIcon = document.getElementById('sfxIcon');
+      const crtBtn = document.getElementById('crtToggleBtn');
+      const crtLabel = document.getElementById('crtLabel');
+      const crtIcon = document.getElementById('crtIcon');
+      const fxBtn = document.getElementById('fxToggleBtn');
+      const fxLabel = document.getElementById('fxLabel');
+      const fxIcon = document.getElementById('fxIcon');
+      const soundToast = document.getElementById('soundToast');
+      const questBtn = document.getElementById('btnHeroQuests');
+
+      function updateBgmUi(isPlaying) {
+        if (isPlaying) {
+          bgmBtn.classList.add('is-playing');
+          bgmBtn.setAttribute('aria-pressed', 'true');
+          bgmIcon.textContent = '🔊';
+          bgmLabel.textContent = 'BGM: ON';
+        } else {
+          bgmBtn.classList.remove('is-playing');
+          bgmBtn.setAttribute('aria-pressed', 'false');
+          bgmIcon.textContent = '🔇';
+          bgmLabel.textContent = 'BGM: OFF';
+        }
+      }
+
+      function updateSfxUi(isEnabled) {
+        if (isEnabled) {
+          sfxBtn.setAttribute('aria-pressed', 'true');
+          sfxIcon.textContent = '🔊';
+          sfxLabel.textContent = 'SFX: ON';
+        } else {
+          sfxBtn.setAttribute('aria-pressed', 'false');
+          sfxIcon.textContent = '🔇';
+          sfxLabel.textContent = 'SFX: OFF';
+        }
+      }
+
+      // FX Animation Toggle (Ambient FX, Shimmer, Dust)
+      let isFxOn = true;
+      if (fxBtn) {
+        fxBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          isFxOn = !isFxOn;
+          if (isFxOn) {
+            document.body.classList.remove('fx-disabled');
+            fxBtn.classList.add('fx-on');
+            fxBtn.setAttribute('aria-pressed', 'true');
+            fxIcon.textContent = '⚡';
+            fxLabel.textContent = 'FX: ON';
+          } else {
+            document.body.classList.add('fx-disabled');
+            fxBtn.classList.remove('fx-on');
+            fxBtn.setAttribute('aria-pressed', 'false');
+            fxIcon.textContent = '💤';
+            fxLabel.textContent = 'FX: OFF';
+          }
+          RetroAudio.playClick();
+        });
+      }
+
+      // CRT Scanline Toggle Logic
+      let isCrtOn = true;
+      if (crtBtn) {
+        crtBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          isCrtOn = !isCrtOn;
+          if (isCrtOn) {
+            document.body.classList.remove('crt-disabled');
+            document.body.classList.add('crt-active');
+            crtBtn.classList.add('crt-on');
+            crtBtn.setAttribute('aria-pressed', 'true');
+            crtIcon.textContent = '📺';
+            crtLabel.textContent = 'CRT: ON';
+          } else {
+            document.body.classList.remove('crt-active');
+            document.body.classList.add('crt-disabled');
+            crtBtn.classList.remove('crt-on');
+            crtBtn.setAttribute('aria-pressed', 'false');
+            crtIcon.textContent = '🖥️';
+            crtLabel.textContent = 'CRT: OFF';
+          }
+          RetroAudio.playClick();
+        });
+      }
+
+      // BGM Toggle
+      if (bgmBtn) {
+        bgmBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          RetroAudio.initContext();
+          const state = RetroAudio.toggleBgm();
+          updateBgmUi(state);
+          RetroAudio.playClick();
+          if (soundToast) soundToast.style.display = 'none';
+        });
+      }
+
+      // SFX Toggle
+      if (sfxBtn) {
+        sfxBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          RetroAudio.initContext();
+          const state = RetroAudio.toggleSfx();
+          updateSfxUi(state);
+          if (state) RetroAudio.playClick();
+        });
+      }
+
+      // Sound Toast click triggers BGM
+      if (soundToast) {
+        soundToast.addEventListener('click', () => {
+          RetroAudio.initContext();
+          RetroAudio.startBgm();
+          updateBgmUi(true);
+          RetroAudio.playFanfare();
+          soundToast.style.display = 'none';
+        });
+      }
+
+      // Auto-init audio context on first interactive click
+      const unlockAudio = () => {
+        RetroAudio.initContext();
+        window.removeEventListener('click', unlockAudio);
+        window.removeEventListener('keydown', unlockAudio);
+      };
+      window.addEventListener('click', unlockAudio);
+      window.addEventListener('keydown', unlockAudio);
+
+      // Quest button special fanfare sound
+      if (questBtn) {
+        questBtn.addEventListener('click', () => {
+          RetroAudio.playFanfare();
+        });
+      }
+
+      // Attach SFX (hover + click) to interactive pixel buttons, links & cards
+      const clickableSelectors = '.pixel-btn, .nav-link, .nav-logo, .inventory-slot, .boss-card, .quest-card';
+      document.querySelectorAll(clickableSelectors).forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          RetroAudio.playHover();
+        });
+        el.addEventListener('click', () => {
+          if (el !== questBtn && el !== bgmBtn && el !== sfxBtn && el !== crtBtn && el !== fxBtn) {
+            RetroAudio.playClick();
+          }
+          if (soundToast) soundToast.style.display = 'none';
+        });
+      });
+    })();
+  </script>
+
+
+</body></html>
